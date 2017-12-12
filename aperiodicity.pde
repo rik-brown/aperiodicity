@@ -1,10 +1,14 @@
 // Aperiodicity by Richatrd Brown (c)
 // 2017-12-02 Exploring aperiodicity when drawing elements in a cartesian grid
 
+import com.hamoid.*;
+
+VideoExport videoExport;
+
 int period = 1; // Unit length for one modulo cycle
-float A = 1000; // Periodic multiplier A
-float B = 1550; // Periodic multiplier B
-float C = 6000; // Periodic multiplier C
+float A = 600; // Periodic multiplier A
+float B = 400; // Periodic multiplier B
+float C = 1200; // Periodic multiplier C
 
 float ra = 20;
 float rb = 20;
@@ -29,13 +33,18 @@ void setup() {
   noStroke();
   //frameRate(10);
   ellipseMode(RADIUS);
-  columns =40;
+  columns = 37;
   //rows = 9;
   rows = columns;
   colOffset = width/(columns*2);
   rowOffset = height/(rows*2);
   ra = colOffset;
   rb = rowOffset;
+  videoExport = new VideoExport(this, "../videoExport/aperiodicity_006.mp4"); //WARNING! The destination folder must exist already!
+  videoExport.setQuality(75, 128);
+  videoExport.setFrameRate(30);
+  videoExport.setDebugging(false);
+  videoExport.startMovie();
 
 }
 
@@ -44,6 +53,7 @@ void draw() {
   float modulo_A = (frameCount-1) % A; //Varies in range 0 - ((period * A)-1)
   float modulo_B = (frameCount-1) % B; //Varies in range 0 - ((period * B)-1)
   float modulo_C = (frameCount-1) % C; //Varies in range 0 - ((period * C)-1)
+  float exitCondition = frameCount % C;
   //println (frameCount, "     ", modulo_A, "    ", modulo_B, "     ", modulo_C);
   float angleA = map(modulo_A, 0, A-1, 0, TWO_PI);
   float angleB = map(modulo_B, 0, B-1, 0, TWO_PI);
@@ -62,7 +72,7 @@ void draw() {
       float yc = map(cos(angleC + yOffsetAngle), -1, 1, -rc, rc);
       pushMatrix();
       //fillCol = color(degrees(angleC + xOffsetAngle + yOffsetAngle)%360, 255, 255, 100);
-      fillCol = color(240, map(yc, -rc, rc, 0, 64), map(xc, -rc, rc, 192, 255), 100);
+      fillCol = color(240, map(yc, -rc, rc, 128, 255), map(xc, -rc, rc, 128, 255), 100);
       fill(fillCol);
       translate(x, y);
       rotate(angleC + xOffsetAngle + yOffsetAngle);
@@ -73,5 +83,11 @@ void draw() {
       //ellipse(0, 0, ry*0.5, ry*0.5);
       popMatrix();
     }
+  }
+  videoExport.saveFrame();
+  println (exitCondition);
+  if (exitCondition==0) {
+    videoExport.endMovie();
+    exit();
   }
 }
